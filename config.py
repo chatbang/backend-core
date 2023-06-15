@@ -4,10 +4,6 @@ import re
 
 
 class BaseConfig(object):
-    OpenAIKey = "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"
-    PineconeAPIKey = "06420329-37da-4628-b0a8-0472e1fffcd5"
-    IndexName = "chatbang"
-    Environment = "asia-southeast1-gcp-free"
     OpenAI_URL = ""
 
     def setup_log(self):

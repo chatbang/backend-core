@@ -1,6 +1,7 @@
 from flask import Flask
 from config import config
 from flask_cors import CORS
+import configparser
 
 # 配置日志信息
 config.setup_log()
@@ -8,6 +9,14 @@ config.setup_log()
 app = Flask(__name__)
 # SocketIO(app, cors_allowed_origins='*') 配置跨域请求
 CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
+
+config = configparser.ConfigParser()
+config.read('env.ini')
+
+OpenAIKey = config.get('info', 'OpenAIKey')
+PineconeAPIKey = config.get('info', 'PineconeAPIKey')
+IndexName = config.get('IndexName', 'IndexName')
+Environment = config.get('info', 'Environment')
 
 
 # 上传文件
