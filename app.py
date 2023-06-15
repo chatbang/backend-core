@@ -15,7 +15,7 @@ config.read('env.ini')
 
 OpenAIKey = config.get('info', 'OpenAIKey')
 PineconeAPIKey = config.get('info', 'PineconeAPIKey')
-IndexName = config.get('IndexName', 'IndexName')
+IndexName = config.get('info', 'IndexName')
 Environment = config.get('info', 'Environment')
 
 
