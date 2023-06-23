@@ -3,7 +3,7 @@ This is the backend core module of the Chatbang.
 
 > 注意：Python版本需为>=3.8.1
 
-重命名根目录里的`env.ini.example`为`env.ini`，并更新对应的values
+重命名根目录里的`.env.example`为`.env`，并更新对应的values
 
 ## 安装依赖
 
