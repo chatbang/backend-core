@@ -1,11 +1,13 @@
 import os
-from flask import Flask, request
+import pinecone
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from config import config
 from flask_cors import CORS
 from langchain.vectorstores.pinecone import Pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
-import pinecone
+from langchain.chains import ConversationalRetrievalChain
+from langchain.llms import OpenAI
 from processor import processor
 
 OPEN_AI_KEY = os.getenv('OPEN_AI_KEY')
@@ -76,12 +78,29 @@ def file_processor():
 
 
 # 返回与chatDPT交互信息
-@app.route('/api/completion')
+@app.route('/api/completion', methods=['POST'])
 def chatgpt_completion():
-    # put application's code here
-    question = ''
-    answer = ''
-    return {'code': 200,  'message': 'success', 'data': {'question': question, 'answer': answer}}
+    data = request.get_json()
+    question = data.get('question', '')
+    if question.strip() == '':
+        return jsonify({'code': 400, 'message': 'question is empty'}), 400
+
+    chat_history = data.get('chat_history', [])
+    
+    db = Pinecone.from_existing_index(
+        PINECONE_INDEX_NAME,
+        embedding=OpenAIEmbeddings(openai_api_key=OPEN_AI_KEY),
+        text_key='text',
+        namespace='default'
+    )
+    retriever = db.as_retriever(search_kwargs={'k': 3})
+    qa = ConversationalRetrievalChain.from_llm(
+        llm=OpenAI(openai_api_key=OPEN_AI_KEY),
+        retriever=retriever
+    )
+    result = qa({"question": question, 'chat_history': chat_history})
+
+    return {'code': 200, 'message': 'success', 'answer': result['answer']}
 
 
 def pinecone_setup():
