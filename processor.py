@@ -1,7 +1,6 @@
 
 from PyPDF2 import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf'}
 
@@ -20,14 +19,13 @@ class Processor:
         return text
 
     def get_text_chunks(self, txt):
-        text_splitter = CharacterTextSplitter(
-            separator='\n',
+        text_splitter = RecursiveCharacterTextSplitter(
+            separators=['\n'],
             chunk_size=1000,
             chunk_overlap=200,
             length_function=len
         )
-        chunks = text_splitter.split_text(txt)
-        return chunks
+        return text_splitter.split_text(txt)
 
 
 processor = Processor()
