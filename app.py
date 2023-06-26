@@ -4,10 +4,12 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from config import config
 from flask_cors import CORS
+from typing import List
 from langchain.vectorstores.pinecone import Pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.llms import OpenAI
+from langchain.schema import Document
 from processor import processor
 
 OPEN_AI_KEY = os.getenv('OPEN_AI_KEY')
@@ -76,6 +78,35 @@ def file_processor():
 
         return {'code': 200, 'message': 'file processed successfully'}
 
+@app.route('/api/search', methods=['POST'])
+def search():
+    data = request.get_json()
+    question = data.get('question', '')
+    if question.strip() == '':
+        return jsonify({'code': 400, 'message': 'question is empty'}), 400
+
+    db = Pinecone.from_existing_index(
+        PINECONE_INDEX_NAME,
+        embedding=OpenAIEmbeddings(openai_api_key=OPEN_AI_KEY),
+        text_key='text',
+        namespace='default'
+    )
+    retriever = db.as_retriever(search_kwargs={'k': 3})
+    docs = retriever.get_relevant_documents(question)
+    
+    answers = [{'content': doc.page_content, 'metadata': doc.metadata} for doc in docs]
+    return {'code': 200, 'message': 'success', 'answers': answers}
+
+# def parse_docs(docs: List[Document], all_meta: bool = False) -> None:
+#     for doc in docs:
+#         assert doc.page_content
+#         assert doc.metadata
+#         main_meta = {"Published", "Title", "Authors", "Summary"}
+#         assert set(doc.metadata).issuperset(main_meta)
+#         if all_meta:
+#             assert len(set(doc.metadata)) > len(main_meta)
+#         else:
+#             assert len(set(doc.metadata)) == len(main_meta)
 
 # 返回与chatDPT交互信息
 @app.route('/api/completion', methods=['POST'])
