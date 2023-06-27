@@ -47,11 +47,11 @@ def upload():
 @app.route('/api/file-process', methods=['POST'])
 def file_processor():
     if 'file' not in request.files:
-        return {'code': 400, 'message': 'No file part'}
+        return jsonify({'code': 400, 'message': 'No file part'}), 400
     
     file = request.files['file']
     if file.filename == '':
-        return {'code': 400, 'message': 'No selected file'}
+        return jsonify({'code': 400, 'message': 'No selected file'}), 400
     
     if file and processor.allowed_file(file.filename):
         text = ''
@@ -64,7 +64,7 @@ def file_processor():
         text_chunks = processor.get_text_chunks(text)
 
         # save the text chunks to pinecone
-        metadatas = [{'fileName': file.filename, 'page': i} for i in range(len(text_chunks))]
+        metadatas = [{'fileName': file.filename, 'page': i + 1} for i in range(len(text_chunks))]
         embeddings = OpenAIEmbeddings(openai_api_key=OPEN_AI_KEY)
         Pinecone.from_texts(
             text_chunks,
