@@ -24,7 +24,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000  # Max 16MB
 CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
 
 
-@app.route('/api/health')
+@app.route('/api/health', methods=['GET', 'POST'])
 def health():
     return {'code': 200, 'message': 'success'}
 
