@@ -114,4 +114,4 @@ env.ini
 /start.sh
 /core/config.py
 
-logs/
+logs/*.log
